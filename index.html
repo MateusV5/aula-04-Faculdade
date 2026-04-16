@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teachable Machine</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #2a2a3a;
+      --accent: #00e5ff;
+      --accent2: #bf5af2;
+      --text: #e8e8f0;
+      --text-muted: #6b6b80;
+      --radius: 12px;
+      --glow: 0 0 24px rgba(0,229,255,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .header .badge-tag {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(0,229,255,0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 1rem;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Card */
+    .card-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Camera section */
+    .camera-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    /* Webcam frame */
+    #webcam-container {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      background: #0d0d14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    #webcam-container.active {
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    #webcam-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cam-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .cam-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.4;
+    }
+
+    .cam-placeholder span {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Start button */
+    .btn-start {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.65rem 1.6rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      overflow: hidden;
+    }
+
+    .btn-start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .btn-start:hover::before { opacity: 0.1; }
+
+    .btn-start:hover {
+      box-shadow: 0 0 20px rgba(0,229,255,0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-start:active { transform: translateY(0); }
+
+    .btn-start.running {
+      color: var(--accent2);
+      border-color: var(--accent2);
+    }
+
+    .btn-start.running:hover {
+      box-shadow: 0 0 20px rgba(191,90,242,0.3);
+    }
+
+    .btn-start svg { width: 16px; height: 16px; flex-shrink: 0; position: relative; z-index: 1; }
+    .btn-start span { position: relative; z-index: 1; }
+
+    /* Status dot */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .status-dot.live {
+      background: #00e676;
+      box-shadow: 0 0 8px rgba(0,230,118,0.6);
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Predictions section */
+    .predictions-section {
+      padding: 1.5rem;
+    }
+
+    .predictions-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .predictions-header h2 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    #label-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Each prediction item */
+    .prediction-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .prediction-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .class-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .class-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      min-width: 42px;
+      text-align: right;
+      transition: color 0.3s;
+    }
+
+    /* Progress bar track */
+    .progress-track {
+      height: 6px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.25s ease, background 0.3s;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+    }
+
+    /* High confidence glow */
+    .progress-fill.high {
+      box-shadow: 0 0 10px rgba(0,229,255,0.5);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem 0;
+      color: var(--text-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      line-height: 1.8;
+    }
+
+    /* Footer */
+    .footer-note {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      #webcam-container {
+        width: 160px;
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="header">
+    <div class="badge-tag">AI Vision</div>
+    <h1>Teachable<br/>Machine</h1>
+    <p>// image classification model</p>
+  </div>
+
+  <div class="card-panel">
+
+    <div class="camera-section">
+
+      <div id="webcam-container">
+        <div class="cam-placeholder" id="cam-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+          </svg>
+          <span>câmera inativa</span>
+        </div>
+      </div>
+
+      <button class="btn-start" id="start-btn" onclick="init()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="btn-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M10 8l6 4-6 4V8z" fill="currentColor" stroke="none"/>
+        </svg>
+        <span id="btn-text">Ativar Câmera</span>
+        <div class="status-dot" id="status-dot"></div>
+      </button>
+
+    </div>
+
+    <div class="predictions-section">
+      <div class="predictions-header">
+        <h2>Predições</h2>
+      </div>
+      <div id="label-container">
+        <div class="empty-state">
+          Inicie a câmera para<br/>visualizar as predições
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="footer-note">modelo em ./my_model/ &nbsp;·&nbsp; tensorflow.js</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script>
+  const URL = "./my_model/";
+  let model, webcam, labelContainer, maxPredictions;
+  let isRunning = false;
+
+  const classColors = [
+    'linear-gradient(90deg, #bf5af2, #00e5ff)',
+    'linear-gradient(90deg, #ff6b6b, #ffd93d)',
+    'linear-gradient(90deg, #00e676, #00e5ff)',
+    'linear-gradient(90deg, #ff9f43, #ee5a24)',
+    'linear-gradient(90deg, #a29bfe, #6c5ce7)',
+    'linear-gradient(90deg, #fd79a8, #e84393)',
+  ];
+
+  async function init() {
+    if (isRunning) return;
+    isRunning = true;
+
+    const btn = document.getElementById('start-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-icon');
+    const dot = document.getElementById('status-dot');
+
+    btnText.textContent = 'Aguarde...';
+    btn.classList.add('running');
+    btn.disabled = true;
+
+    try {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      model = await tmImage.load(modelURL, metadataURL);
+      maxPredictions = model.getTotalClasses();
+
+      const flip = true;
+      webcam = new tmImage.Webcam(200, 200, flip);
+      await webcam.setup();
+      await webcam.play();
+      window.requestAnimationFrame(loop);
+
+      // Replace placeholder with webcam
+      const placeholder = document.getElementById('cam-placeholder');
+      if (placeholder) placeholder.remove();
+      const container = document.getElementById('webcam-container');
+      container.appendChild(webcam.canvas);
+      container.classList.add('active');
+
+      // Build prediction items
+      labelContainer = document.getElementById('label-container');
+      labelContainer.innerHTML = '';
+
+      for (let i = 0; i < maxPredictions; i++) {
+        const item = document.createElement('div');
+        item.className = 'prediction-item';
+
+        const top = document.createElement('div');
+        top.className = 'prediction-top';
+
+        const name = document.createElement('span');
+        name.className = 'class-name';
+        name.textContent = '—';
+
+        const val = document.createElement('span');
+        val.className = 'class-value';
+        val.textContent = '0%';
+
+        top.appendChild(name);
+        top.appendChild(val);
+
+        const track = document.createElement('div');
+        track.className = 'progress-track';
+
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        fill.style.background = classColors[i % classColors.length];
+        track.appendChild(fill);
+
+        item.appendChild(top);
+        item.appendChild(track);
+        labelContainer.appendChild(item);
+      }
+
+      // Update button
+      btnText.textContent = 'Ao Vivo';
+      btnIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/>';
+      dot.classList.add('live');
+      btn.disabled = false;
+
+    } catch (err) {
+      console.error(err);
+      btnText.textContent = 'Erro — Tente novamente';
+      btn.classList.remove('running');
+      btn.disabled = false;
+      isRunning = false;
+    }
+  }
+
+  async function loop() {
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+  }
+
+  async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    const items = labelContainer.querySelectorAll('.prediction-item');
+
+    for (let i = 0; i < maxPredictions; i++) {
+      const prob = prediction[i].probability;
+      const pct = Math.round(prob * 100);
+
+      const name = items[i].querySelector('.class-name');
+      const val = items[i].querySelector('.class-value');
+      const fill = items[i].querySelector('.progress-fill');
+
+      name.textContent = prediction[i].className;
+      val.textContent = pct + '%';
+      fill.style.width = pct + '%';
+
+      if (pct >= 70) {
+        fill.classList.add('high');
+        val.style.color = 'var(--accent)';
+      } else {
+        fill.classList.remove('high');
+        val.style.color = 'var(--text-muted)';
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
