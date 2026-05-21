@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,37 +8,79 @@
   <meta name="description" content="Gerencie suas tarefas de forma simples e elegante." />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: #0f172a; font-family: system-ui, sans-serif; }
+    body {
+      background: #0f172a;
+      font-family: system-ui, sans-serif;
+    }
 
     .glass {
-      background: rgba(255,255,255,0.04);
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .screen { display: none; }
-    .screen.active { display: flex; }
+    .screen {
+      display: none;
+    }
 
-    input:focus, select:focus, textarea:focus {
+    .screen.active {
+      display: flex;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       outline: none;
-      border-color: rgba(59,130,246,0.6) !important;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+      border-color: rgba(59, 130, 246, 0.6) !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
 
-    .task-card { transition: opacity .3s ease; }
-    .task-card.done { opacity: .4; }
-    .task-card.done .task-title { text-decoration: line-through; color: #64748b; }
+    .task-card {
+      transition: opacity .3s ease;
+    }
 
-    .badge-work     { background:rgba(59,130,246,.2); color:#93c5fd; border:1px solid rgba(59,130,246,.3); }
-    .badge-personal { background:rgba(168,85,247,.2); color:#d8b4fe; border:1px solid rgba(168,85,247,.3); }
-    .badge-study    { background:rgba(16,185,129,.2);  color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
+    .task-card.done {
+      opacity: .4;
+    }
 
-    .btn { transition: all .2s ease; }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
+    .task-card.done .task-title {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+
+    .badge-work {
+      background: rgba(59, 130, 246, .2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, .3);
+    }
+
+    .badge-personal {
+      background: rgba(168, 85, 247, .2);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, .3);
+    }
+
+    .badge-study {
+      background: rgba(16, 185, 129, .2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, .3);
+    }
+
+    .btn {
+      transition: all .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
   </style>
 </head>
+
 <body class="text-slate-100 min-h-screen">
 
   <!-- AUTH SCREEN -->
@@ -65,11 +108,14 @@
               placeholder="••••••••" />
             <p id="login-password-error" class="text-red-400 text-xs mt-1 hidden"></p>
           </div>
-          <div id="login-general-error" class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
-          <button type="submit" class="btn w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/25">Entrar</button>
+          <div id="login-general-error"
+            class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
+          <button type="submit"
+            class="btn w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/25">Entrar</button>
         </form>
         <p class="mt-7 text-center text-slate-400 text-sm">
-          Não tem conta? <a href="#" id="show-register" class="text-blue-400 hover:text-blue-300 font-medium">Cadastre-se</a>
+          Não tem conta? <a href="#" id="show-register"
+            class="text-blue-400 hover:text-blue-300 font-medium">Cadastre-se</a>
         </p>
       </div>
 
@@ -101,8 +147,11 @@
               placeholder="Mínimo 6 caracteres" />
             <p id="register-password-error" class="text-red-400 text-xs mt-1 hidden"></p>
           </div>
-          <div id="register-general-error" class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
-          <button type="submit" class="btn w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-600/25">Criar conta</button>
+          <div id="register-general-error"
+            class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
+          <button type="submit"
+            class="btn w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-600/25">Criar
+            conta</button>
         </form>
         <p class="mt-7 text-center text-slate-400 text-sm">
           Já tem conta? <a href="#" id="show-login" class="text-blue-400 hover:text-blue-300 font-medium">Faça login</a>
@@ -124,7 +173,8 @@
       <button id="logout-btn"
         class="btn flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 text-slate-300 rounded-xl text-sm font-medium">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
         Sair
       </button>
@@ -138,7 +188,8 @@
         <form id="todo-form" class="space-y-4" novalidate>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="md:col-span-2">
-              <label for="todo-title" class="block text-sm font-medium mb-2 text-slate-300">Título <span class="text-red-400">*</span></label>
+              <label for="todo-title" class="block text-sm font-medium mb-2 text-slate-300">Título <span
+                  class="text-red-400">*</span></label>
               <input type="text" id="todo-title"
                 class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
                 placeholder="O que precisa ser feito?" />
@@ -155,7 +206,8 @@
             </div>
           </div>
           <div>
-            <label for="todo-description" class="block text-sm font-medium mb-2 text-slate-300">Descrição <span class="text-slate-500">(opcional)</span></label>
+            <label for="todo-description" class="block text-sm font-medium mb-2 text-slate-300">Descrição <span
+                class="text-slate-500">(opcional)</span></label>
             <textarea id="todo-description" rows="2"
               class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all resize-none"
               placeholder="Detalhes adicionais..."></textarea>
@@ -180,4 +232,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
