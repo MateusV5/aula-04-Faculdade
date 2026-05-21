@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do App</title>
+  <meta name="description" content="Gerencie suas tarefas de forma simples e elegante." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f172a; font-family: system-ui, sans-serif; }
+
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(59,130,246,0.6) !important;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+
+    .task-card { transition: opacity .3s ease; }
+    .task-card.done { opacity: .4; }
+    .task-card.done .task-title { text-decoration: line-through; color: #64748b; }
+
+    .badge-work     { background:rgba(59,130,246,.2); color:#93c5fd; border:1px solid rgba(59,130,246,.3); }
+    .badge-personal { background:rgba(168,85,247,.2); color:#d8b4fe; border:1px solid rgba(168,85,247,.3); }
+    .badge-study    { background:rgba(16,185,129,.2);  color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
+
+    .btn { transition: all .2s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen">
+
+  <!-- AUTH SCREEN -->
+  <main id="auth-screen" class="screen active min-h-screen items-center justify-center p-6">
+    <div class="w-full max-w-md">
+
+      <!-- Login -->
+      <div id="login-container" class="glass rounded-3xl p-10 shadow-2xl">
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold">Bem-vindo de volta</h1>
+          <p class="text-slate-400 text-sm mt-1">Faça login para continuar</p>
+        </div>
+        <form id="login-form" class="space-y-5" novalidate>
+          <div>
+            <label for="login-email" class="block text-sm font-medium mb-2 text-slate-300">E-mail</label>
+            <input type="email" id="login-email"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+              placeholder="seu@email.com" />
+            <p id="login-email-error" class="text-red-400 text-xs mt-1 hidden"></p>
+          </div>
+          <div>
+            <label for="login-password" class="block text-sm font-medium mb-2 text-slate-300">Senha</label>
+            <input type="password" id="login-password"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+              placeholder="••••••••" />
+            <p id="login-password-error" class="text-red-400 text-xs mt-1 hidden"></p>
+          </div>
+          <div id="login-general-error" class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
+          <button type="submit" class="btn w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/25">Entrar</button>
+        </form>
+        <p class="mt-7 text-center text-slate-400 text-sm">
+          Não tem conta? <a href="#" id="show-register" class="text-blue-400 hover:text-blue-300 font-medium">Cadastre-se</a>
+        </p>
+      </div>
+
+      <!-- Register -->
+      <div id="register-container" class="glass rounded-3xl p-10 shadow-2xl hidden">
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold">Criar conta</h1>
+          <p class="text-slate-400 text-sm mt-1">Organize suas tarefas hoje</p>
+        </div>
+        <form id="register-form" class="space-y-5" novalidate>
+          <div>
+            <label for="register-name" class="block text-sm font-medium mb-2 text-slate-300">Nome</label>
+            <input type="text" id="register-name"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+              placeholder="Seu nome" />
+            <p id="register-name-error" class="text-red-400 text-xs mt-1 hidden"></p>
+          </div>
+          <div>
+            <label for="register-email" class="block text-sm font-medium mb-2 text-slate-300">E-mail</label>
+            <input type="email" id="register-email"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+              placeholder="seu@email.com" />
+            <p id="register-email-error" class="text-red-400 text-xs mt-1 hidden"></p>
+          </div>
+          <div>
+            <label for="register-password" class="block text-sm font-medium mb-2 text-slate-300">Senha</label>
+            <input type="password" id="register-password"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+              placeholder="Mínimo 6 caracteres" />
+            <p id="register-password-error" class="text-red-400 text-xs mt-1 hidden"></p>
+          </div>
+          <div id="register-general-error" class="text-red-400 text-sm hidden text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20"></div>
+          <button type="submit" class="btn w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-600/25">Criar conta</button>
+        </form>
+        <p class="mt-7 text-center text-slate-400 text-sm">
+          Já tem conta? <a href="#" id="show-login" class="text-blue-400 hover:text-blue-300 font-medium">Faça login</a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- APP / DASHBOARD SCREEN -->
+  <main id="app-screen" class="screen flex-col min-h-screen p-6">
+
+    <!-- Header -->
+    <header class="glass rounded-2xl px-6 py-4 flex items-center justify-between mb-8 shadow-xl">
+      <div>
+        <p class="font-bold text-base">Olá, <span id="user-greeting" class="text-blue-400"></span>! 👋</p>
+        <p class="text-slate-500 text-xs" id="task-summary"></p>
+      </div>
+      <button id="logout-btn"
+        class="btn flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 text-slate-300 rounded-xl text-sm font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Sair
+      </button>
+    </header>
+
+    <div class="max-w-3xl mx-auto w-full space-y-6">
+
+      <!-- Form nova tarefa -->
+      <section class="glass rounded-2xl p-6 shadow-xl">
+        <h2 class="text-lg font-semibold mb-5">Nova Tarefa</h2>
+        <form id="todo-form" class="space-y-4" novalidate>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+              <label for="todo-title" class="block text-sm font-medium mb-2 text-slate-300">Título <span class="text-red-400">*</span></label>
+              <input type="text" id="todo-title"
+                class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all"
+                placeholder="O que precisa ser feito?" />
+              <p id="todo-title-error" class="text-red-400 text-xs mt-1 hidden"></p>
+            </div>
+            <div>
+              <label for="todo-type" class="block text-sm font-medium mb-2 text-slate-300">Tipo</label>
+              <select id="todo-type"
+                class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 transition-all cursor-pointer">
+                <option value="work">Trabalho</option>
+                <option value="personal">Pessoal</option>
+                <option value="study">Estudos</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="todo-description" class="block text-sm font-medium mb-2 text-slate-300">Descrição <span class="text-slate-500">(opcional)</span></label>
+            <textarea id="todo-description" rows="2"
+              class="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 transition-all resize-none"
+              placeholder="Detalhes adicionais..."></textarea>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit"
+              class="btn flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-blue-600/20">
+              + Adicionar Tarefa
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Lista de tarefas -->
+      <section>
+        <h2 class="text-base font-semibold mb-4 text-slate-300">Suas Tarefas</h2>
+        <div id="todo-list" class="space-y-3"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
